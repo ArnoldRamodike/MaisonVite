@@ -1,9 +1,19 @@
 /** @type {import('tailwindcss').Config} */
+import styled from 'styled-components/native';
+import { css } from 'styled-components';
+
+const StyledView = styled.View`
+  ${({ theme }) => css`
+    background-color: ${theme.colors.primary};
+    // Your styles here
+  `}
+`;
+
 module.exports = {
   content: [
       "./App/Screens/**/*.{js,ts,jsx,tsx,mdx}", 
       "./App/**/*.{js,ts,jsx,tsx,mdx}",
-      "./app/**/*.{js,ts,jsx,tsx,mdx}",
+      "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     ],
   theme: {
     extend: {
