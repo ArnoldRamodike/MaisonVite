@@ -1,4 +1,4 @@
-import { AwesomeGraphQLClient } from 'awesome-graphql-client'
+import { AwesomeGraphQLClient, gql } from 'awesome-graphql-client'
 
 const MASTER_URL = process.env.MASTER_URL;
 
@@ -74,7 +74,7 @@ const getBusinessLists = async () => {
     }
   };
 
-const getBusinessListByCategory = async (category) => { 
+const getBusinessListByCategory  = async (category) => { 
   const getBusinessList =  `
       query GetBusinessList {
         businessLists(where: {categories_some: {name: "`+category+`"}}) {
@@ -101,12 +101,78 @@ const getBusinessListByCategory = async (category) => {
       throw err;  // Re-throw the error to be handled by the caller
     }
   };
+
+const getBookings  = async (email) => { 
+  const getUserBookings =  `
+      query GetUserBookings {
+        bookings(orderBy: updatedAt_DESC, where: {userEmail: "`+email+`"}) {
+          time
+          date
+          userName
+          userEmail
+          bookingStatus
+          id
+          businessList {
+            id
+            images {
+              url
+            }
+            name
+            address
+            contactPerson
+            email
+            about
+          }
+        }
+      }
+    `
+    try {
+      const data = await client.request(getUserBookings);
+      return data;
+    } catch (err) {
+      console.error(err);
+      throw err;  // Re-throw the error to be handled by the caller
+    }
+  };
+
+const CreateBooking = async (data) => { 
+  const mutationQuery = `
+      mutation CreateBooking {
+        createBooking(
+          data: {
+            bookingStatus: Booked, 
+            businessList: {connect: {
+              id: "`+data.businessid+`"}}, 
+              date: "`+data.date+`", 
+              time: "`+data.time+`", 
+              userEmail: "`+data.userEmail+`", 
+              userName: "`+data.userName+`"
+              note: "`+data.note+`"
+            }
+        ) {
+          id
+        }
+        publishManyBookings (to: PUBLISHED) {
+          count
+        }
+      }
+    `
+    try {
+      const data = await client.request(mutationQuery);
+      return data;
+    } catch (err) {
+      console.error(err);
+      throw err;  // Re-throw the error to be handled by the caller
+    }
+  };
  
 
 export default {
     getSliders,
     getCategories,
     getBusinessLists,
-    getBusinessListByCategory
+    getBusinessListByCategory,
+    CreateBooking,
+    getBookings,
 }
 
